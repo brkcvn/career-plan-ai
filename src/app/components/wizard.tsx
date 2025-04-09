@@ -36,7 +36,6 @@ export default function Wizard() {
     const [results, setResults] = useState<CareerMatch[]>([]);
     const [customMotivation, setCustomMotivation] = useState<string>('');
     const [resultAI, setResultAI] = useState<string>('');
-    const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const totalSteps = 5;
 
@@ -78,13 +77,20 @@ export default function Wizard() {
     const onNextStep = async () => {
         if (step === totalSteps - 1) {
             setLoading(true);
-            const response = await askOpenAI(formData);
-            if (response) {
-                setResultAI(response);
+            try {
+                const response = await askOpenAI(formData);
+                if (response) {
+                    setResultAI(response);
+                    setStep((prev) => prev + 1);
+                }
+            } catch (err) {
+                console.error("Error fetching AI results:", err);
+            } finally {
                 setLoading(false);
             }
+        } else {
+            setStep((prev) => prev + 1);
         }
-        setStep((prev) => prev + 1);
     }
 
     const nextDisabled = () => {
@@ -95,14 +101,10 @@ export default function Wizard() {
         } else if (step === 3) {
             return formData.skills.length < 3 || formData.interests.length < 3;
         } else if (step === 4) {
-            return formData.motivations.length < 1 || formData.workStyle === '' || formData.salary === '';
-        }
-        else if (step === totalSteps) {
-            return loading;
+            return formData.motivations.length < 1 || formData.workStyle === '' || formData.salary === '' || loading;
         }
         return false;
     }
-
     const onRestart = () => {
         setStep(1);
         setFormData({
@@ -450,8 +452,6 @@ export default function Wizard() {
                 return null;
         }
     };
-
-    console.log('resultAI', resultAI);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">

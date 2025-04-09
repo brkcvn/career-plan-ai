@@ -33,7 +33,7 @@ export async function askOpenAI(personalInformation: FormData) {
 
                         Let the maximum match be 95 percent, the second highest match be 85 percent, and the last highest be 75 percent.
                         
-                        If you cannot find suitable careers based on currentCareer: "${personalInformation.currentCareer}" and motivations: "${personalInformation.motivations}", return a JSON object with an "error" field containing your message.
+                        If you cannot find suitable careers based on currentCareer: "${personalInformation.currentCareer}" or motivations: "${personalInformation.motivations}", return a JSON object with an "error" field containing your message.
                         
                         Return ONLY the JSON object, with no additional text.
                     `
@@ -43,7 +43,6 @@ export async function askOpenAI(personalInformation: FormData) {
         });
 
         const result = response.choices[0].message.content;
-        console.log('OpenAI response:', result);
 
         if (!result) {
             throw new Error('Response message is null or undefined');
